@@ -3,7 +3,7 @@ A script original invented for a parallelized execution of SnpSift annotate. Now
 
 ## Example for SnpSift Annotate
 `python
-python ssap.py sample.bcf "SnpSift annotate database.vcf.bgz /dev/stdin" --threads 12
+ssap.py sample.bcf "SnpSift annotate database.vcf.bgz /dev/stdin" --threads 12
 `
 
 ## License
