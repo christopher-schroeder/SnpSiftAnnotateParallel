@@ -3,6 +3,7 @@ import argparse
 from multiprocessing import Pool
 from pysam import VariantFile
 import tempfile
+import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument("database_vcf")
@@ -30,17 +31,20 @@ f.close()
 
 with tempfile.TemporaryDirectory(dir=tmp_base) as t:
     def f(x):
+        #print("start", x, file=sys.stderr)
         cmd = f"bcftools view -r {x} {args.file_vcf} | bcftools view -t {x} | SnpSift annotate {ss_args} {args.database_vcf} /dev/stdin | bcftools view -Ob > {t}/{x}.bcf"
-        print(cmd)
         os.system(cmd)
+        #print("done", x, file=sys.stderr)
         return f"{t}/{x}.bcf"
 
     with Pool(args.threads) as p:
         first = True
         for filename in p.imap(f, regions):
+            print("merge", filename, file=sys.stderr)
             if first:
                 cmd = f"bcftools view {filename}"
             else:
                 cmd = f'bcftools view {filename} | grep -v "#"'
             os.system(cmd)
+            os.remove(filename)
             first = False
